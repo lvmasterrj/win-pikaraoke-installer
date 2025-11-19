@@ -12,7 +12,13 @@ echo Checking FFmpeg...
 where ffmpeg >nul 2>nul
 if %errorlevel% neq 0 (
     echo FFmpeg not found. Installing FFmpeg...
-    powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
+    
+    if exist "ffmpeg.zip" (
+        echo ffmpeg.zip already exists. Skipping download...
+    ) else (
+        echo Downloading FFmpeg...
+        powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
+    )
     
     if not exist "ffmpeg.zip" (
         echo Error downloading FFmpeg. Check your internet connection.
