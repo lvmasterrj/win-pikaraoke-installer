@@ -1,40 +1,55 @@
 @echo off
 setlocal enabledelayedexpansion
-title Instalador do PikaKaraoke
+title PikaKaraoke Installer
 
 echo ==============================================
-echo     Instalador do PikaKaraoke para Windows
+echo     PikaKaraoke Installer for Windows
 echo ==============================================
 echo.
 
-:: 1. Verificar FFmpeg
-echo Verificando FFmpeg...
+:: 1. Check FFmpeg
+echo Checking FFmpeg...
 where ffmpeg >nul 2>nul
 if %errorlevel% neq 0 (
-    echo FFmpeg nao encontrado. Instalando FFmpeg...
+    echo FFmpeg not found. Installing FFmpeg...
     powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
-    powershell -Command "Expand-Archive ffmpeg.zip -DestinationPath .\ffmpeg"
-    set "FFMPEG_PATH=%cd%\ffmpeg\ffmpeg-*-essentials_build\bin"
-    for /d %%i in ("%cd%\ffmpeg\ffmpeg-*") do set "FFMPEG_PATH=%%i\bin"
-    setx PATH "!FFMPEG_PATH!;%PATH%"
-    echo FFmpeg instalado e adicionado ao PATH com sucesso.
+    if %errorlevel% neq 0 (
+        echo Error downloading FFmpeg. Check your internet connection.
+        pause
+        exit /b 1
+    )
+    
+    powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force"
+    if %errorlevel% neq 0 (
+        echo Error extracting FFmpeg.
+        pause
+        exit /b 1
+    )
+    
+    for /d %%i in ("%cd%\ffmpeg\ffmpeg-*") do (
+        set "FFMPEG_PATH=%%i\bin"
+        setx PATH "!FFMPEG_PATH!;%PATH%"
+        if %errorlevel% equ 0 (
+            echo FFmpeg installed and added to PATH successfully.
+        ) else (
+            echo Warning: Failed to add FFmpeg to PATH. Check your permissions.
+        )
+        goto ffmpeg_done
+    )
+    :ffmpeg_done
+    del ffmpeg.zip >nul 2>nul
 ) else (
-    echo FFmpeg ja está instalado.
+    echo FFmpeg is already installed.
 )
 echo.
 
-:: 2. Verificar Python
-echo Verificando Python...
-set "PYTHON_OK=0"
-python --version > temp_py_ver.txt 2>nul
-findstr /R "^Python" temp_py_ver.txt >nul 2>nul && set PYTHON_OK=1
-del temp_py_ver.txt >nul 2>nul
-
-if "%PYTHON_OK%"=="1" (
-    echo Python ja esta instalado.
+:: 2. Check Python
+echo Checking Python...
+python --version >nul 2>&1
+if %errorlevel% equ 0 (
+    echo Python is already installed.
 ) else (
-    echo Python nao encontrado. Instalando...
-
+    echo Python not found. Installing...
 
     set "PYTHON_URL="
     set "ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
@@ -47,66 +62,106 @@ if "%PYTHON_OK%"=="1" (
         set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9.exe"
     )
 
-    echo Baixando Python 3.13.9 para arquitetura %ARCHITECTURE%...
+    echo Downloading Python 3.13.9 for architecture %ARCHITECTURE%...
     powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
-    start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1
-    echo Python instalado e adicionado ao PATH com sucesso.
+    if %errorlevel% neq 0 (
+        echo Error downloading Python. Check your internet connection.
+        pause
+        exit /b 1
+    )
+    
+    start /wait python-installer.exe /passive InstallAllUsers=1 PrependPath=1
+    if %errorlevel% equ 0 (
+        echo Python installed successfully.
+        del python-installer.exe >nul 2>nul
+    ) else (
+        echo Error installing Python. Check your permissions.
+        pause
+        exit /b 1
+    )
 )
 echo.
 
-:: 3. Verificar Google Chrome
-echo Verificando Google Chrome...
+:: 3. Check Google Chrome
+echo Checking Google Chrome...
 if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
-    set /p installChrome="Google Chrome não encontrado. Deseja instalar? (S/N): "
-    if /I "%installChrome%"=="S" (
-        echo Baixando e instalando Google Chrome...
-        powershell -Command "Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe"
-        start /wait chrome_installer.exe /silent /install
-        echo Google Chrome instalado com sucesso.
+    if not exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" (
+        set /p installChrome="Google Chrome not found. Do you want to install it? (Y/N): "
+        if /I "%installChrome%"=="Y" (
+            echo Downloading and installing Google Chrome...
+            powershell -Command "Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe"
+            if %errorlevel% neq 0 (
+                echo Error downloading Chrome. Check your internet connection.
+                pause
+                exit /b 1
+            )
+            
+            start /wait chrome_installer.exe /silent /install
+            if %errorlevel% equ 0 (
+                echo Google Chrome installed successfully.
+                del chrome_installer.exe >nul 2>nul
+            ) else (
+                echo Warning: An error occurred while installing Chrome. Continuing...
+                del chrome_installer.exe >nul 2>nul
+            )
+        ) else (
+            echo Chrome installation skipped.
+        )
     ) else (
-        echo Instalação do Chrome ignorada.
+        echo Google Chrome is already installed.
     )
 ) else (
-    echo Google Chrome já está instalado.
+    echo Google Chrome is already installed.
 )
 echo.
 
-:: 4. Instalar PikaKaraoke
-echo Instalando PikaKaraoke via pip...
+:: 4. Install PikaKaraoke
+echo Installing PikaKaraoke via pip...
+pip install --upgrade pip >nul 2>&1
 pip install pikaraoke
 if %errorlevel% equ 0 (
-    echo PikaKaraoke instalado com sucesso.
+    echo PikaKaraoke installed successfully.
 ) else (
-    echo Houve um erro ao instalar o PikaKaraoke.
+    echo An error occurred while installing PikaKaraoke. Check if Python was installed correctly.
+    pause
+    exit /b 1
 )
 echo.
 
-:: 5. Baixar ícone personalizado
-echo Baixando ícone do PikaKaraoke...
-powershell -Command "Invoke-WebRequest -Uri https://github.com/lvmasterrj/win-pikaraoke-installer/blob/main/logo.ico -OutFile pikaraoke.ico"
+:: 5. Download custom icon
+echo Downloading PikaKaraoke icon...
+powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile pikaraoke.ico"
 if exist pikaraoke.ico (
-    echo Ícone baixado com sucesso.
+    echo Icon downloaded successfully.
 ) else (
-    echo Falha ao baixar o ícone. O atalho usará o ícone padrão.
+    echo Warning: Failed to download the icon. The shortcut will use the default icon.
 )
 echo.
 
-:: 6. Criar atalho na área de trabalho
-set /p criarAtalho="Deseja criar um atalho na area de trabalho para o PikaKaraoke? (S/N): "
-if /I "%criarAtalho%"=="S" (
-    echo Criando atalho na area de trabalho...
+:: 6. Create desktop shortcut
+set /p criarAtalho="Do you want to create a desktop shortcut for PikaKaraoke? (Y/N): "
+if /I "%criarAtalho%"=="Y" (
+    echo Creating desktop shortcut...
     powershell -Command ^
-    "$s=(New-Object -COM WScript.Shell).CreateShortcut('%USERPROFILE%\Desktop\PikaKaraoke.lnk'); ^
-    $s.TargetPath='pikaraoke'; ^
-    if (Test-Path '%cd%\pikaraoke.ico') { $s.IconLocation='%cd%\pikaraoke.ico' }; ^
-    $s.Save()"
-    echo Atalho criado com sucesso.
+    "$WshShell = New-Object -COM WScript.Shell; ^
+    $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'PikaKaraoke.lnk'); ^
+    $Shortcut = $WshShell.CreateShortcut($Desktop); ^
+    $Shortcut.TargetPath = 'cmd.exe'; ^
+    $Shortcut.Arguments = '/c pikaraoke'; ^
+    $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); ^
+    if (Test-Path '%cd%\pikaraoke.ico') { $Shortcut.IconLocation = '%cd%\pikaraoke.ico' }; ^
+    $Shortcut.Save()"
+    if %errorlevel% equ 0 (
+        echo Shortcut created successfully.
+    ) else (
+        echo Warning: An error occurred while creating the shortcut.
+    )
 ) else (
-    echo Atalho não criado.
+    echo Shortcut not created.
 )
 echo.
 
 echo ===============================================
-echo   Instalação concluída! Divirta-se cantando!
+echo   Installation complete! Have fun singing!
 echo ===============================================
 pause
