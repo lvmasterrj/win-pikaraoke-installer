@@ -184,16 +184,34 @@ echo.
 set /p criarAtalho="Do you want to create a desktop shortcut for PikaKaraoke? (Y/N): "
 if /I "%criarAtalho%"=="Y" (
     echo Creating desktop shortcut...
-    powershell -NoProfile -Command "$WshShell = New-Object -COM WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'PikaKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path '%cd%\pikaraoke.ico') { $Shortcut.IconLocation = '%cd%\pikaraoke.ico' }; $Shortcut.Save(); Write-Host '[OK] Shortcut created successfully.' -ForegroundColor Green"
+    call :CreateShortcut
 ) else (
     echo Shortcut not created.
 )
 echo.
 
-echo.
 color 0A
 echo ===============================================
 echo   Installation complete! Have fun singing!
 echo ===============================================
 color 07
 pause
+exit /b 0
+
+:CreateShortcut
+setlocal enabledelayedexpansion
+set "SCRIPT=%temp%\create_shortcut.ps1"
+(
+    echo $ws = New-Object -ComObject WScript.Shell
+    echo $sc = $ws.CreateShortcut('%USERPROFILE%\Desktop\PikaKaraoke.lnk'
+    echo $sc.TargetPath = 'cmd.exe'
+    echo $sc.Arguments = '/c pikaraoke'
+    echo $sc.WorkingDirectory = '%USERPROFILE%'
+    echo if (Test-Path 'pikaraoke.ico'^) { $sc.IconLocation = (Get-Item 'pikaraoke.ico'^).FullName }
+    echo $sc.Save(^)
+) > "%SCRIPT%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
+del "%SCRIPT%" >nul 2>nul
+echo [OK] Shortcut created successfully.
+endlocal
+goto :EOF
