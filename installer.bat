@@ -21,7 +21,8 @@ if %errorlevel% neq 0 (
     )
     
     powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath c:\ffmpeg -Force"
-    if %errorlevel% neq 0 (
+    
+    if not exist "c:\ffmpeg\ffmpeg-*" (
         echo Error extracting FFmpeg.
         pause
         exit /b 1
