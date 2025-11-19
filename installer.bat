@@ -1,6 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 title PikaKaraoke Installer
+color 0A
 
 echo ==============================================
 echo     PikaKaraoke Installer for Windows
@@ -13,9 +14,11 @@ where ffmpeg >nul 2>nul
 if %errorlevel% neq 0 (
     echo FFmpeg not found. Installing FFmpeg...
     echo.
-    powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading FFmpeg (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile 'ffmpeg.zip' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
+    echo Downloading FFmpeg (this may take a minute)...
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile 'ffmpeg.zip'"
     
     if not exist ffmpeg.zip (
+        color 0C
         echo Error downloading FFmpeg. Check your internet connection.
         pause
         exit /b 1
@@ -23,9 +26,10 @@ if %errorlevel% neq 0 (
     
     echo.
     echo Extracting FFmpeg...
-    powershell -NoProfile -Command "Write-Host 'Extracting files...' -ForegroundColor Cyan; Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force; Write-Host 'Extraction complete!' -ForegroundColor Green"
+    powershell -NoProfile -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force"
     
     if %errorlevel% neq 0 (
+        color 0C
         echo Error extracting FFmpeg.
         pause
         exit /b 1
@@ -42,11 +46,14 @@ if %errorlevel% neq 0 (
         if !ERRORLEVEL! equ 0 (
             echo [OK] FFmpeg installed and added to PATH successfully.
         ) else (
+            color 0E
             echo [WARNING] Failed to add FFmpeg to PATH. Check your permissions.
+            color 0A
         )
     )
     
     if "!FOUND!"=="0" (
+        color 0C
         echo [ERROR] Could not find FFmpeg bin directory after extraction.
         pause
         exit /b 1
@@ -79,9 +86,11 @@ if %errorlevel% equ 0 (
     )
 
     echo Downloading Python 3.13.9 for architecture %ARCHITECTURE%...
-    powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading Python (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri '!PYTHON_URL!' -OutFile 'python-installer.exe' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
+    echo Please wait, this may take a minute...
+    powershell -NoProfile -Command "Invoke-WebRequest -Uri '!PYTHON_URL!' -OutFile 'python-installer.exe'"
     
     if not exist python-installer.exe (
+        color 0C
         echo [ERROR] Error downloading Python. Check your internet connection.
         pause
         exit /b 1
@@ -94,6 +103,7 @@ if %errorlevel% equ 0 (
         echo [OK] Python installed successfully.
         del python-installer.exe >nul 2>nul
     ) else (
+        color 0C
         echo [ERROR] Error installing Python. Check your permissions.
         pause
         exit /b 1
@@ -109,9 +119,11 @@ if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
         if /I "%installChrome%"=="Y" (
             echo.
             echo Downloading and installing Google Chrome...
-            powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading Chrome (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile 'chrome_installer.exe' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
+            echo Please wait, this may take a minute...
+            powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile 'chrome_installer.exe'"
             
             if not exist chrome_installer.exe (
+                color 0C
                 echo [ERROR] Error downloading Chrome. Check your internet connection.
                 pause
                 exit /b 1
@@ -124,7 +136,9 @@ if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
                 echo [OK] Google Chrome installed successfully.
                 del chrome_installer.exe >nul 2>nul
             ) else (
+                color 0E
                 echo [WARNING] An error occurred while installing Chrome. Continuing...
+                color 0A
                 del chrome_installer.exe >nul 2>nul
             )
         ) else (
@@ -142,11 +156,12 @@ echo.
 echo Installing PikaKaraoke via pip...
 pip install --upgrade pip >nul 2>&1
 echo.
-powershell -NoProfile -Command "Write-Host 'Installing PikaKaraoke (this may take a minute)...' -ForegroundColor Cyan"
+echo Installing PikaKaraoke (this may take a minute)...
 pip install pikaraoke
 if %errorlevel% equ 0 (
     echo [OK] PikaKaraoke installed successfully.
 ) else (
+    color 0C
     echo [ERROR] An error occurred while installing PikaKaraoke. Check if Python was installed correctly.
     pause
     exit /b 1
@@ -155,11 +170,13 @@ echo.
 
 :: 5. Download custom icon
 echo Downloading PikaKaraoke icon...
-powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico' -OutFile 'pikaraoke.ico' -Verbose"
+powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico' -OutFile 'pikaraoke.ico'"
 if exist pikaraoke.ico (
     echo [OK] Icon downloaded successfully.
 ) else (
+    color 0E
     echo [WARNING] Failed to download the icon. The shortcut will use the default icon.
+    color 0A
 )
 echo.
 
@@ -174,5 +191,9 @@ if /I "%criarAtalho%"=="Y" (
 echo.
 
 echo.
-powershell -NoProfile -Command "Write-Host '===============================================' -ForegroundColor Green; Write-Host '   Installation complete! Have fun singing!   ' -ForegroundColor Green; Write-Host '===============================================' -ForegroundColor Green"
+color 0A
+echo ===============================================
+echo   Installation complete! Have fun singing!
+echo ===============================================
+color 07
 pause
