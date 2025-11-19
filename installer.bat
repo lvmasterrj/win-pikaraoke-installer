@@ -13,20 +13,21 @@ where ffmpeg >nul 2>nul
 if %errorlevel% neq 0 (
     echo FFmpeg not found. Installing FFmpeg...
     powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
-    if %errorlevel% neq 0 (
+    
+    if not exist "ffmpeg.zip" (
         echo Error downloading FFmpeg. Check your internet connection.
         pause
         exit /b 1
     )
     
-    powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force"
+    powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath c:\ffmpeg -Force"
     if %errorlevel% neq 0 (
         echo Error extracting FFmpeg.
         pause
         exit /b 1
     )
     
-    for /d %%i in ("%cd%\ffmpeg\ffmpeg-*") do (
+    for /d %%i in ("c:\ffmpeg\ffmpeg-*") do (
         set "FFMPEG_PATH=%%i\bin"
         setx PATH "!FFMPEG_PATH!;%PATH%"
         if %errorlevel% equ 0 (
