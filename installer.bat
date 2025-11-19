@@ -15,7 +15,7 @@ if %errorlevel% neq 0 (
     echo FFmpeg not found. Installing FFmpeg...
     echo.
     echo Downloading FFmpeg (this may take a minute)...
-    powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile 'ffmpeg.zip'"
+    call :DownloadFile "https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip" "ffmpeg.zip"
     
     if not exist ffmpeg.zip (
         color 0C
@@ -26,7 +26,7 @@ if %errorlevel% neq 0 (
     
     echo.
     echo Extracting FFmpeg...
-    powershell -NoProfile -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force"
+    call :ExtractZip "ffmpeg.zip" "ffmpeg"
     
     if %errorlevel% neq 0 (
         color 0C
@@ -87,7 +87,7 @@ if %errorlevel% equ 0 (
 
     echo Downloading Python 3.13.9 for architecture %ARCHITECTURE%...
     echo Please wait, this may take a minute...
-    powershell -NoProfile -Command "Invoke-WebRequest -Uri '!PYTHON_URL!' -OutFile 'python-installer.exe'"
+    call :DownloadFile "!PYTHON_URL!" "python-installer.exe"
     
     if not exist python-installer.exe (
         color 0C
@@ -120,7 +120,7 @@ if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
             echo.
             echo Downloading and installing Google Chrome...
             echo Please wait, this may take a minute...
-            powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile 'chrome_installer.exe'"
+            call :DownloadFile "https://dl.google.com/chrome/install/latest/chrome_installer.exe" "chrome_installer.exe"
             
             if not exist chrome_installer.exe (
                 color 0C
@@ -170,7 +170,7 @@ echo.
 
 :: 5. Download custom icon
 echo Downloading PikaKaraoke icon...
-powershell -NoProfile -Command "Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico' -OutFile 'pikaraoke.ico'"
+call :DownloadFile "https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico" "pikaraoke.ico"
 if exist pikaraoke.ico (
     echo [OK] Icon downloaded successfully.
 ) else (
@@ -197,6 +197,33 @@ echo ===============================================
 color 07
 pause
 exit /b 0
+
+:DownloadFile
+setlocal enabledelayedexpansion
+set "URL=%~1"
+set "OUTFILE=%~2"
+set "SCRIPT=%temp%\download.ps1"
+(
+    echo $ProgressPreference = 'Continue'
+    echo Invoke-WebRequest -Uri '%URL%' -OutFile '%OUTFILE%'
+) > "%SCRIPT%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
+del "%SCRIPT%" >nul 2>nul
+endlocal
+goto :EOF
+
+:ExtractZip
+setlocal enabledelayedexpansion
+set "ZIPFILE=%~1"
+set "DESTPATH=%~2"
+set "SCRIPT=%temp%\extract.ps1"
+(
+    echo Expand-Archive -Path '%ZIPFILE%' -DestinationPath '%DESTPATH%' -Force
+) > "%SCRIPT%"
+powershell -NoProfile -ExecutionPolicy Bypass -File "%SCRIPT%"
+set "RESULT=%errorlevel%"
+del "%SCRIPT%" >nul 2>nul
+endlocal & exit /b %RESULT%
 
 :CreateShortcut
 setlocal enabledelayedexpansion
