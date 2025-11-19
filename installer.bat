@@ -66,7 +66,8 @@ if %errorlevel% equ 0 (
 
     echo Downloading Python 3.13.9 for architecture %ARCHITECTURE%...
     powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
-    if %errorlevel% neq 0 (
+    
+    if not exist "python-installer.exe" (
         echo Error downloading Python. Check your internet connection.
         pause
         exit /b 1
