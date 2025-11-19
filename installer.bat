@@ -13,11 +13,7 @@ where ffmpeg >nul 2>nul
 if %errorlevel% neq 0 (
     echo FFmpeg not found. Installing FFmpeg...
     echo.
-    powershell -Command "^
-    $ProgressPreference = 'Continue'; ^
-    Write-Host 'Downloading FFmpeg (this may take a minute)...' -ForegroundColor Cyan; ^
-    Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile 'ffmpeg.zip' -Verbose; ^
-    Write-Host 'Download complete!' -ForegroundColor Green"
+    powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading FFmpeg (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri 'https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip' -OutFile 'ffmpeg.zip' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
     
     if not exist ffmpeg.zip (
         echo Error downloading FFmpeg. Check your internet connection.
@@ -27,10 +23,7 @@ if %errorlevel% neq 0 (
     
     echo.
     echo Extracting FFmpeg...
-    powershell -Command "^
-    Write-Host 'Extracting files...' -ForegroundColor Cyan; ^
-    Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force; ^
-    Write-Host 'Extraction complete!' -ForegroundColor Green"
+    powershell -NoProfile -Command "Write-Host 'Extracting files...' -ForegroundColor Cyan; Expand-Archive -Path ffmpeg.zip -DestinationPath .\ffmpeg -Force; Write-Host 'Extraction complete!' -ForegroundColor Green"
     
     if %errorlevel% neq 0 (
         echo Error extracting FFmpeg.
@@ -86,11 +79,7 @@ if %errorlevel% equ 0 (
     )
 
     echo Downloading Python 3.13.9 for architecture %ARCHITECTURE%...
-    powershell -Command "^
-    $ProgressPreference = 'Continue'; ^
-    Write-Host 'Downloading Python (this may take a minute)...' -ForegroundColor Cyan; ^
-    Invoke-WebRequest -Uri '!PYTHON_URL!' -OutFile 'python-installer.exe' -Verbose; ^
-    Write-Host 'Download complete!' -ForegroundColor Green"
+    powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading Python (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri '!PYTHON_URL!' -OutFile 'python-installer.exe' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
     
     if not exist python-installer.exe (
         echo [ERROR] Error downloading Python. Check your internet connection.
@@ -120,11 +109,7 @@ if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
         if /I "%installChrome%"=="Y" (
             echo.
             echo Downloading and installing Google Chrome...
-            powershell -Command "^
-            $ProgressPreference = 'Continue'; ^
-            Write-Host 'Downloading Chrome (this may take a minute)...' -ForegroundColor Cyan; ^
-            Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile 'chrome_installer.exe' -Verbose; ^
-            Write-Host 'Download complete!' -ForegroundColor Green"
+            powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Write-Host 'Downloading Chrome (this may take a minute)...' -ForegroundColor Cyan; Invoke-WebRequest -Uri 'https://dl.google.com/chrome/install/latest/chrome_installer.exe' -OutFile 'chrome_installer.exe' -Verbose; Write-Host 'Download complete!' -ForegroundColor Green"
             
             if not exist chrome_installer.exe (
                 echo [ERROR] Error downloading Chrome. Check your internet connection.
@@ -157,8 +142,7 @@ echo.
 echo Installing PikaKaraoke via pip...
 pip install --upgrade pip >nul 2>&1
 echo.
-powershell -Command "^
-Write-Host 'Installing PikaKaraoke (this may take a minute)...' -ForegroundColor Cyan"
+powershell -NoProfile -Command "Write-Host 'Installing PikaKaraoke (this may take a minute)...' -ForegroundColor Cyan"
 pip install pikaraoke
 if %errorlevel% equ 0 (
     echo [OK] PikaKaraoke installed successfully.
@@ -171,9 +155,7 @@ echo.
 
 :: 5. Download custom icon
 echo Downloading PikaKaraoke icon...
-powershell -Command "^
-$ProgressPreference = 'Continue'; ^
-Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico' -OutFile 'pikaraoke.ico' -Verbose"
+powershell -NoProfile -Command "$ProgressPreference = 'Continue'; Invoke-WebRequest -Uri 'https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico' -OutFile 'pikaraoke.ico' -Verbose"
 if exist pikaraoke.ico (
     echo [OK] Icon downloaded successfully.
 ) else (
@@ -185,24 +167,12 @@ echo.
 set /p criarAtalho="Do you want to create a desktop shortcut for PikaKaraoke? (Y/N): "
 if /I "%criarAtalho%"=="Y" (
     echo Creating desktop shortcut...
-    powershell -Command ^
-    "$WshShell = New-Object -COM WScript.Shell; ^
-    $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'PikaKaraoke.lnk'); ^
-    $Shortcut = $WshShell.CreateShortcut($Desktop); ^
-    $Shortcut.TargetPath = 'cmd.exe'; ^
-    $Shortcut.Arguments = '/c pikaraoke'; ^
-    $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); ^
-    if (Test-Path '%cd%\pikaraoke.ico') { $Shortcut.IconLocation = '%cd%\pikaraoke.ico' }; ^
-    $Shortcut.Save(); ^
-    Write-Host '[OK] Shortcut created successfully.' -ForegroundColor Green"
+    powershell -NoProfile -Command "$WshShell = New-Object -COM WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'), 'PikaKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path '%cd%\pikaraoke.ico') { $Shortcut.IconLocation = '%cd%\pikaraoke.ico' }; $Shortcut.Save(); Write-Host '[OK] Shortcut created successfully.' -ForegroundColor Green"
 ) else (
     echo Shortcut not created.
 )
 echo.
 
 echo.
-powershell -Command "^
-Write-Host '===============================================' -ForegroundColor Green; ^
-Write-Host '   Installation complete! Have fun singing!   ' -ForegroundColor Green; ^
-Write-Host '===============================================' -ForegroundColor Green"
+powershell -NoProfile -Command "Write-Host '===============================================' -ForegroundColor Green; Write-Host '   Installation complete! Have fun singing!   ' -ForegroundColor Green; Write-Host '===============================================' -ForegroundColor Green"
 pause
