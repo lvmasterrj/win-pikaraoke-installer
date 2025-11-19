@@ -25,9 +25,16 @@ echo.
 
 :: 2. Verificar Python
 echo Verificando Python...
-where python >nul 2>nul
-if %errorlevel% neq 0 (
-    echo Python não encontrado. Detectando arquitetura do Windows...
+set "PYTHON_OK=0"
+python --version > temp_py_ver.txt 2>nul
+findstr /R "^Python" temp_py_ver.txt >nul 2>nul && set PYTHON_OK=1
+del temp_py_ver.txt >nul 2>nul
+
+if "%PYTHON_OK%"=="1" (
+    echo Python ja esta instalado.
+) else (
+    echo Python nao encontrado. Instalando...
+
 
     set "PYTHON_URL="
     set "ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
