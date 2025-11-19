@@ -51,8 +51,6 @@ if "%PYTHON_OK%"=="1" (
     powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
     start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1
     echo Python instalado e adicionado ao PATH com sucesso.
-) else (
-    echo Python já está instalado.
 )
 echo.
 
