@@ -83,23 +83,31 @@ if %errorlevel% equ 0 (
     pause
     
     echo Installing Python 3.13.9...
-    start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_pip=1 Include_tcltk=1 Include_launcher=1 Include_test=0 Include_symbols=1 Include_debug=1 Shortcuts=1
+    start /wait python-installer.exe /passive InstallAllUsers=1 PrependPath=1 Include_pip=1 Include_tcltk=1 Include_launcher=1 Include_test=0 Include_symbols=1 Include_debug=1 Shortcuts=1
     
     echo Python installer finished. Exit code: %errorlevel%
-    timeout /t 3 /nobreak >nul
+    timeout /t 5 /nobreak >nul
     
     REM Refresh environment variables by restarting the command processor
     endlocal
     setlocal enabledelayedexpansion
     
     echo Checking if Python is available...
-    python --version >nul 2>&1
+    python --version
     if %errorlevel% equ 0 (
         echo Python installed successfully.
         del python-installer.exe >nul 2>nul
     ) else (
         echo Warning: An error occurred while installing Python. Continuing...
         echo Python exit code: %errorlevel%
+        echo Trying to find Python in common locations...
+        if exist "C:\Program Files\Python313\python.exe" (
+            echo Found Python at C:\Program Files\Python313\python.exe
+            set "PATH=C:\Program Files\Python313;C:\Program Files\Python313\Scripts;!PATH!"
+        ) else if exist "C:\Program Files (x86)\Python313\python.exe" (
+            echo Found Python at C:\Program Files (x86)\Python313\python.exe
+            set "PATH=C:\Program Files (x86)\Python313;C:\Program Files (x86)\Python313\Scripts;!PATH!"
+        )
         del python-installer.exe >nul 2>nul
     )
 )
