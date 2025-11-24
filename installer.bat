@@ -73,12 +73,21 @@ if %errorlevel% equ 0 (
         exit /b 1
     )
     
+    echo.
+    echo ======================================================
+    echo Python installer will now open. Please click on:
+    echo  - "Install Now" or continue with the installation
+    echo  - When prompted by UAC, click "Yes" to allow the installer
+    echo ======================================================
+    echo.
+    pause
+    
     echo Installing Python 3.13.9...
     start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_pip=1 Include_tcltk=1 Include_launcher=1 Include_test=0 Include_symbols=1 Include_debug=1 Shortcuts=1
     
     timeout /t 3 /nobreak >nul
-    REM Refresh environment variables
-    for /F "usebackq delims==" %%i in (`reg query HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Session\ Manager\Environment /v PATH`) do set "PATH=%%i"
+    REM Refresh environment variables by restarting the command processor
+    endlocal & setlocal enabledelayedexpansion
     
     python --version >nul 2>&1
     if %errorlevel% equ 0 (
