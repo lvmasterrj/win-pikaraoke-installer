@@ -91,17 +91,18 @@ if %errorlevel% equ 0 (
     echo Checking if Python is available...
     if exist "C:\Program Files\Python313\python.exe" (
         echo Found Python at C:\Program Files\Python313\python.exe
-		  
-        echo Python installed successfully.
-        del python-installer.exe >nul 2>nul
-    ) else if exist "C:\Program Files (x86)\Python313\python.exe" (
-        echo Found Python at C:\Program Files (x86)\Python313\python.exe
         echo Python installed successfully.
         del python-installer.exe >nul 2>nul
     ) else (
-        echo Warning: An error occurred while installing Python. Continuing...
-        echo Trying to find Python in common locations...
-        del python-installer.exe >nul 2>nul
+        if exist "C:\Program Files (x86)\Python313\python.exe" (
+            echo Found Python at C:\Program Files (x86)\Python313\python.exe
+            echo Python installed successfully.
+            del python-installer.exe >nul 2>nul
+        ) else (
+            echo Warning: An error occurred while installing Python. Continuing...
+            echo Trying to find Python in common locations...
+            del python-installer.exe >nul 2>nul
+        )
     )
 )
 echo.
