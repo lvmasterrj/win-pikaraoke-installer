@@ -85,22 +85,27 @@ if %errorlevel% equ 0 (
     echo Installing Python 3.13.9...
     start /wait python-installer.exe /quiet InstallAllUsers=1 PrependPath=1 Include_pip=1 Include_tcltk=1 Include_launcher=1 Include_test=0 Include_symbols=1 Include_debug=1 Shortcuts=1
     
+    echo Python installer finished. Exit code: %errorlevel%
     timeout /t 3 /nobreak >nul
-    REM Refresh environment variables by restarting the command processor
-    endlocal & setlocal enabledelayedexpansion
     
+    REM Refresh environment variables by restarting the command processor
+    endlocal
+    setlocal enabledelayedexpansion
+    
+    echo Checking if Python is available...
     python --version >nul 2>&1
     if %errorlevel% equ 0 (
         echo Python installed successfully.
         del python-installer.exe >nul 2>nul
     ) else (
         echo Warning: An error occurred while installing Python. Continuing...
+        echo Python exit code: %errorlevel%
         del python-installer.exe >nul 2>nul
     )
 )
 echo.
 
-:: 3. Check Google Chrome
+echo [Step 3] Checking Google Chrome...
 echo Checking Google Chrome...
 if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
     if not exist "C:\Program Files (x86)\Google\Chrome\Application\chrome.exe" (
@@ -133,20 +138,23 @@ if not exist "C:\Program Files\Google\Chrome\Application\chrome.exe" (
 )
 echo.
 
-:: 4. Install PikaKaraoke
+echo [Step 4] Installing PikaKaraoke...
 echo Installing PikaKaraoke via pip...
 pip install --upgrade pip >nul 2>&1
+if %errorlevel% neq 0 (
+    echo Warning: pip upgrade had an issue but continuing...
+)
+
 pip install pikaraoke
 if %errorlevel% equ 0 (
     echo PikaKaraoke installed successfully.
 ) else (
-    echo An error occurred while installing PikaKaraoke. Check if Python was installed correctly.
-    pause
-    exit /b 1
+    echo Warning: An error occurred while installing PikaKaraoke. Continuing...
+    echo PikaKaraoke exit code: %errorlevel%
 )
 echo.
 
-:: 5. Download custom icon
+echo [Step 5] Downloading custom icon...
 echo Downloading PikaKaraoke icon...
 powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile pikaraoke.ico"
 if exist pikaraoke.ico (
@@ -156,7 +164,7 @@ if exist pikaraoke.ico (
 )
 echo.
 
-:: 6. Create desktop shortcut
+echo [Step 7] Creating desktop shortcut...
 set /p criarAtalho="Do you want to create a desktop shortcut for PikaKaraoke? (Y/N): "
 if /I "%criarAtalho%"=="Y" (
     echo Creating desktop shortcut...
@@ -173,6 +181,7 @@ if /I "%criarAtalho%"=="Y" (
         echo Shortcut created successfully.
     ) else (
         echo Warning: An error occurred while creating the shortcut.
+        echo Shortcut exit code: %errorlevel%
     )
 ) else (
     echo Shortcut not created.
