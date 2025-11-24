@@ -47,7 +47,7 @@ echo.
 
 :: 2. Check Python
 echo Checking Python...
-python --version >nul 2>&1
+where python >nul 2>&1
 if %errorlevel% equ 0 (
     echo Python is already installed.
 ) else (
@@ -88,26 +88,19 @@ if %errorlevel% equ 0 (
     echo Python installer finished. Exit code: %errorlevel%
     timeout /t 5 /nobreak >nul
     
-    REM Refresh environment variables by restarting the command processor
-    endlocal
-    setlocal enabledelayedexpansion
-    
     echo Checking if Python is available...
-    python --version
-    if %errorlevel% equ 0 (
+    if exist "C:\Program Files\Python313\python.exe" (
+        echo Found Python at C:\Program Files\Python313\python.exe
+		  
+        echo Python installed successfully.
+        del python-installer.exe >nul 2>nul
+    ) else if exist "C:\Program Files (x86)\Python313\python.exe" (
+        echo Found Python at C:\Program Files (x86)\Python313\python.exe
         echo Python installed successfully.
         del python-installer.exe >nul 2>nul
     ) else (
         echo Warning: An error occurred while installing Python. Continuing...
-        echo Python exit code: %errorlevel%
         echo Trying to find Python in common locations...
-        if exist "C:\Program Files\Python313\python.exe" (
-            echo Found Python at C:\Program Files\Python313\python.exe
-            set "PATH=C:\Program Files\Python313;C:\Program Files\Python313\Scripts;!PATH!"
-        ) else if exist "C:\Program Files (x86)\Python313\python.exe" (
-            echo Found Python at C:\Program Files (x86)\Python313\python.exe
-            set "PATH=C:\Program Files (x86)\Python313;C:\Program Files (x86)\Python313\Scripts;!PATH!"
-        )
         del python-installer.exe >nul 2>nul
     )
 )
