@@ -32,7 +32,7 @@ if !errorlevel! equ 0 (
   ) else (
   echo FFmpeg not found. Installing FFmpeg...
   
-  if not exist "%SystemDrive%\ffmpeg.zip" (
+  if not exist "\ffmpeg.zip" (
     powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
   )
   
@@ -42,7 +42,7 @@ if !errorlevel! equ 0 (
     exit /b 1
   )
   
-  powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath c:\ffmpeg -Force"
+  powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath %SystemDrive%\ffmpeg -Force"
   
   if not exist "%SystemDrive%\ffmpeg\ffmpeg-*" (
     echo Error extracting FFmpeg.
