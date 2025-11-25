@@ -103,15 +103,15 @@ if !errorlevel! equ 0 (
     if exist "C:\Program Files\Python313\python.exe" (
         echo Python installed successfully.
         del python-installer.exe >nul 2>nul
+    ) else if exist "C:\Program Files (x86)\Python313-32\python.exe" (
+        echo Python installed successfully.
+        del python-installer.exe >nul 2>nul
+    ) else if exist "C:\Users\Barros Moreira\AppData\Local\Programs\Python\python.exe" (
+        echo Python installed successfully.
+        del python-installer.exe >nul 2>nul
     ) else (
-        if exist "C:\Program Files (x86)\Python313-32\python.exe" (
-            echo Python installed successfully.
-            del python-installer.exe >nul 2>nul
-        ) else (
-            echo Warning: An error occurred while installing Python. Continuing...
-            echo Trying to find Python in common locations...
-            del python-installer.exe >nul 2>nul
-        )
+        echo Warning: Python may not have been installed correctly. Continuing...
+        del python-installer.exe >nul 2>nul
     )
 )
 echo.
@@ -151,6 +151,12 @@ echo.
 
 :: 4. Installing PikaKaraoke...
 echo Installing PikaKaraoke via pip...
+
+REM Refresh environment variables from registry
+for /f "tokens=2*" %%a in ('reg query HKLM\SYSTEM\CurrentControlSet\Control\Session\ Manager\Environment /v PATH ^| findstr /i path') do set "SYS_PATH=%%b"
+for /f "tokens=2*" %%a in ('reg query HKCU\Environment /v PATH ^| findstr /i path') do set "USER_PATH=%%b"
+set "PATH=!SYS_PATH!;!USER_PATH!"
+
 python -m pip install --upgrade pip >nul 2>&1
 if !errorlevel! neq 0 (
     echo Warning: pip upgrade had an issue but continuing...
