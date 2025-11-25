@@ -31,11 +31,9 @@ if !errorlevel! equ 0 (
   echo FFmpeg is already installed.
   timeout /t 2 /nobreak >nul
   ) else (
-  echo FFmpeg not found. Installing FFmpeg...
+  echo FFmpeg not found. Downloading FFmpeg...
   
-  if not exist "ffmpeg.zip" (
-    powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
-  )
+  powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
   
   if not exist "ffmpeg.zip" (
     echo Error downloading FFmpeg. Check your internet connection.
@@ -43,6 +41,7 @@ if !errorlevel! equ 0 (
     exit /b 1
   )
   
+  echo Extracting FFmpeg...
   powershell -Command "Expand-Archive -Path ffmpeg.zip -DestinationPath %SystemDrive%\ffmpeg -Force"
   
   if not exist "%SystemDrive%\ffmpeg\ffmpeg-*" (
@@ -75,24 +74,22 @@ if !errorlevel! equ 0 (
   echo Python is already installed.
   timeout /t 2 /nobreak >nul
   ) else (
-  echo Python not found. Installing...
+  echo Python not found.
   
   set "PYTHON_URL="
   set "ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
   
-  if not exist "python-installer.exe" (
-    if /I "!ARCHITECTURE!"=="AMD64" (
-      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe"
-      ) else if /I "!ARCHITECTURE!"=="ARM64" (
-      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-arm64.exe"
-      ) else (
-      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9.exe"
-    )
-    
-    echo Downloading Python 3.13.9 for architecture !ARCHITECTURE! ...
-    timeout /t 2 /nobreak >nul
-    powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
+  if /I "!ARCHITECTURE!"=="AMD64" (
+    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe"
+    ) else if /I "!ARCHITECTURE!"=="ARM64" (
+    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-arm64.exe"
+    ) else (
+    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9.exe"
   )
+  
+  echo Downloading Python 3.13.9 for architecture !ARCHITECTURE! ...
+  timeout /t 2 /nobreak >nul
+  powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
   
   if not exist "python-installer.exe" (
     echo Error downloading Python. Check your internet connection.
