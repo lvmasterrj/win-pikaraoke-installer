@@ -177,18 +177,23 @@ echo.
 :: 5. Creating shortcut
 set /p createShortcut="Do you want to create a shortcut for PiKaraoke on desktop? (Y/N): "
 if /I "!createShortcut!"=="Y" (
-    echo Downloading PikaKaraoke icon...
-    powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile pikaraoke.ico"
-    if exist pikaraoke.ico (
-        echo Icon downloaded successfully.
+    echo Checking for PikaKaraoke icon...
+    if exist logo.ico (
+        echo Icon found locally.
     ) else (
-        echo Warning: Failed to download the icon. The shortcut will use the default icon.
+        echo Downloading PikaKaraoke icon...
+        powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile logo.ico"
+        if exist logo.ico (
+            echo Icon downloaded successfully.
+        ) else (
+            echo Warning: Failed to download the icon. The shortcut will use the default icon.
+        )
     )
     echo.
 
     echo Creating desktop shortcut...
 
-    powershell -NoLogo -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'),'PiKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path \"$pwd\pikaraoke.ico\") { $Shortcut.IconLocation = \"$pwd\pikaraoke.ico\" }; $Shortcut.Save()"
+    powershell -NoLogo -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'),'PiKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path \"$pwd\logo.ico\") { $Shortcut.IconLocation = \"$pwd\logo.ico\" }; $Shortcut.Save()"
 
     if !errorlevel! equ 0 (
         echo Shortcut created successfully.
