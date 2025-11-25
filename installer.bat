@@ -26,7 +26,7 @@ echo.
 :: 1. Check FFmpeg
 echo Checking FFmpeg...
 where ffmpeg >nul 2>nul
-if !errorlevel! eq 0 (
+if !errorlevel! equ 0 (
   echo FFmpeg is already installed.
   timeout /t 2 /nobreak >nul
   ) else (
