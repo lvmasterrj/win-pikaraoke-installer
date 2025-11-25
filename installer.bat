@@ -172,6 +172,7 @@ echo - Open the Command Prompt (type "cmd" on the search bar)
 echo - Type "pikaraoke" and enter
 echo - Enjoy!
 echo ===============================================
+echo.
 
 :: 5. Creating shortcut
 set /p createShortcut="Do you want to create a shortcut for PiKaraoke on desktop? (Y/N): "
@@ -193,7 +194,7 @@ if /I "!createShortcut!"=="Y" (
         echo Shortcut created successfully.
     ) else (
         echo Warning: An error occurred while creating the shortcut.
-        echo Shortcut exit code: %errorlevel%
+        echo Shortcut exit code: !errorlevel!
     )
 )
 echo.
