@@ -32,7 +32,7 @@ if !errorlevel! equ 0 (
   ) else (
   echo FFmpeg not found. Installing FFmpeg...
   
-  if not exist "\ffmpeg.zip" (
+  if not exist "ffmpeg.zip" (
     powershell -Command "Invoke-WebRequest -Uri https://www.gyan.dev/ffmpeg/builds/ffmpeg-release-essentials.zip -OutFile ffmpeg.zip"
   )
   
