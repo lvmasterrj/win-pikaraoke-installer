@@ -128,98 +128,97 @@ echo.
 :: 3. Checking Google Chrome...
 echo Checking Google Chrome...
 echo.
-if not exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" (
-  if not exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" (
-    if not exist "%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe" (
-      set /p installChrome="Google Chrome not found. Do you want to install it? (Y/N): "
-      if /I "!installChrome!"=="Y" (
-        echo Downloading and installing Google Chrome...
-        powershell -Command "Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe"
-        if !errorlevel! neq 0 (
-          echo Error downloading Chrome. Check your internet connection.
-          pause
-        )
-        
-        start /wait chrome_installer.exe /silent /install
-        if !errorlevel! equ 0 (
-          echo Google Chrome installed successfully.
-          del chrome_installer.exe >nul 2>nul
-          ) else (
-          echo Warning: An error occurred while installing Chrome. Proceeding without Chrome...
-          del chrome_installer.exe >nul 2>nul
-        )
-        ) else (
-        echo Chrome installation skipped.
-      )
-      else (
-        echo Google Chrome is already installed.
-      )
+rem Verifica se o Chrome existe em algum dos diretórios comuns
+set "chromePath="
+if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "chromePath=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
+if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "chromePath=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
+if exist "%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe" set "chromePath=%LOCALAPPDATA%\Google\Chrome\Application\chrome.exe"
+
+if defined chromePath (
+  echo Google Chrome is already installed.
+  ) else (
+  set /p installChrome="Google Chrome not found. Do you want to install it? (Y/N): "
+  if /I "!installChrome!"=="Y" (
+    echo Downloading and installing Google Chrome...
+    powershell -Command "Invoke-WebRequest -Uri https://dl.google.com/chrome/install/latest/chrome_installer.exe -OutFile chrome_installer.exe"
+    if !errorlevel! neq 0 (
+      echo Error downloading Chrome. Check your internet connection.
+      pause
       ) else (
-      echo Google Chrome is already installed.
+      start /wait chrome_installer.exe /silent /install
+      if !errorlevel! equ 0 (
+        echo Google Chrome installed successfully.
+        del chrome_installer.exe >nul 2>nul
+        ) else (
+        echo Warning: An error occurred while installing Chrome. Proceeding without Chrome...
+        del chrome_installer.exe >nul 2>nul
+      )
     )
     ) else (
-    echo Google Chrome is already installed.
+    echo Chrome installation skipped.
   )
-  echo.
-  
-  :: 4. Installing PikaKaraoke...
-  echo Installing PikaKaraoke via pip...
-  
-  "%PYTHON_PATH%" -m pip install --upgrade pip >nul 2>&1
-  if !errorlevel! neq 0 (
-    echo Warning: pip upgrade had an issue but continuing...
-  )
-  
-  "%PYTHON_PATH%" -m pip install pikaraoke
-  if !errorlevel! equ 0 (
-    echo PikaKaraoke installed successfully.
+)
+
+echo.
+
+:: 4. Installing PikaKaraoke...
+echo Installing PikaKaraoke via pip...
+
+"%PYTHON_PATH%" -m pip install --upgrade pip >nul 2>&1
+if !errorlevel! neq 0 (
+  echo Warning: pip upgrade had an issue but continuing...
+)
+
+"%PYTHON_PATH%" -m pip install pikaraoke
+if !errorlevel! equ 0 (
+  echo PikaKaraoke installed successfully.
+  ) else (
+  echo Warning: An error occurred while installing PikaKaraoke. Continuing...
+  echo PikaKaraoke exit code: !errorlevel!
+)
+echo.
+
+echo ===============================================
+echo  How to start PiKaraoke
+echo.
+echo - Open the Command Prompt (type "cmd" on the search bar)
+echo - Type "pikaraoke" and enter
+echo - Enjoy!
+echo ===============================================
+echo.
+
+:: 5. Creating shortcut
+set /p createShortcut="Do you want to create a shortcut for PiKaraoke on desktop? (Y/N): "
+if /I "!createShortcut!"=="Y" (
+  echo Checking for PikaKaraoke icon...
+  if exist logo.ico (
+    echo Icon found locally.
     ) else (
-    echo Warning: An error occurred while installing PikaKaraoke. Continuing...
-    echo PikaKaraoke exit code: !errorlevel!
-  )
-  echo.
-  
-  echo ===============================================
-  echo  How to start PiKaraoke
-  echo.
-  echo - Open the Command Prompt (type "cmd" on the search bar)
-  echo - Type "pikaraoke" and enter
-  echo - Enjoy!
-  echo ===============================================
-  echo.
-  
-  :: 5. Creating shortcut
-  set /p createShortcut="Do you want to create a shortcut for PiKaraoke on desktop? (Y/N): "
-  if /I "!createShortcut!"=="Y" (
-    echo Checking for PikaKaraoke icon...
+    echo Downloading PikaKaraoke icon...
+    powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile logo.ico"
     if exist logo.ico (
-      echo Icon found locally.
+      echo Icon downloaded successfully.
       ) else (
-      echo Downloading PikaKaraoke icon...
-      powershell -Command "Invoke-WebRequest -Uri https://raw.githubusercontent.com/lvmasterrj/win-pikaraoke-installer/main/logo.ico -OutFile logo.ico"
-      if exist logo.ico (
-        echo Icon downloaded successfully.
-        ) else (
-        echo Warning: Failed to download the icon. The shortcut will use the default icon.
-      )
-    )
-    echo.
-    
-    echo Creating desktop shortcut...
-    
-    powershell -NoLogo -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'),'PiKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path \"$pwd\logo.ico\") { $Shortcut.IconLocation = \"$pwd\logo.ico\" }; $Shortcut.Save()"
-    
-    if !errorlevel! equ 0 (
-      echo Shortcut created successfully.
-      ) else (
-      echo Warning: An error occurred while creating the shortcut.
-      echo Shortcut exit code: !errorlevel!
+      echo Warning: Failed to download the icon. The shortcut will use the default icon.
     )
   )
   echo.
   
-  echo ===============================================
-  echo  Installation complete! Have fun singing!
-  echo ===============================================
+  echo Creating desktop shortcut...
   
-  pause
+  powershell -NoLogo -NoProfile -Command "$WshShell = New-Object -ComObject WScript.Shell; $Desktop = [System.IO.Path]::Combine([Environment]::GetFolderPath('Desktop'),'PiKaraoke.lnk'); $Shortcut = $WshShell.CreateShortcut($Desktop); $Shortcut.TargetPath = 'cmd.exe'; $Shortcut.Arguments = '/c pikaraoke'; $Shortcut.WorkingDirectory = [Environment]::GetFolderPath('UserProfile'); if (Test-Path \"$pwd\logo.ico\") { $Shortcut.IconLocation = \"$pwd\logo.ico\" }; $Shortcut.Save()"
+  
+  if !errorlevel! equ 0 (
+    echo Shortcut created successfully.
+    ) else (
+    echo Warning: An error occurred while creating the shortcut.
+    echo Shortcut exit code: !errorlevel!
+  )
+)
+echo.
+
+echo ===============================================
+echo  Installation complete! Have fun singing!
+echo ===============================================
+
+pause
