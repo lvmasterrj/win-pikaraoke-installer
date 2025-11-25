@@ -7,6 +7,25 @@ echo     PikaKaraoke Installer for Windows
 echo ==============================================
 echo.
 
+:: 0. Check if PikaKaraoke is already installed
+echo Checking if PikaKaraoke is already installed...
+pip show pikaraoke >nul 2>&1
+if %errorlevel% equ 0 (
+    echo PikaKaraoke is already installed.
+    set /p continueInstall="Do you want to continue with the installation anyway? (Y/N): "
+    REM Remove leading/trailing spaces
+    for /f "tokens=* delims= " %%A in ("%continueInstall%") do set "continueInstall=%%A"
+    
+    if /I "%continueInstall:~0,1%"=="Y" (
+        echo Continuing with installation...
+    ) else (
+        echo Installation cancelled. Exiting...
+        pause
+        exit /b 0
+    )
+)
+echo.
+
 :: 1. Check FFmpeg
 echo Checking FFmpeg...
 where ffmpeg >nul 2>nul
