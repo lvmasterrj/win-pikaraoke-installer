@@ -79,17 +79,19 @@ if !errorlevel! equ 0 (
   set "PYTHON_URL="
   set "ARCHITECTURE=%PROCESSOR_ARCHITECTURE%"
   
-  if /I "!ARCHITECTURE!"=="AMD64" (
-    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe"
-    ) else if /I "!ARCHITECTURE!"=="ARM64" (
-    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-arm64.exe"
-    ) else (
-    set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9.exe"
+  if not exist "python-installer.exe" (
+    if /I "!ARCHITECTURE!"=="AMD64" (
+      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-amd64.exe"
+      ) else if /I "!ARCHITECTURE!"=="ARM64" (
+      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9-arm64.exe"
+      ) else (
+      set "PYTHON_URL=https://www.python.org/ftp/python/3.13.9/python-3.13.9.exe"
+    )
+    
+    echo Downloading Python 3.13.9 for architecture !ARCHITECTURE! ...
+    timeout /t 2 /nobreak >nul
+    powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
   )
-  
-  echo Downloading Python 3.13.9 for architecture !ARCHITECTURE! ...
-  timeout /t 2 /nobreak >nul
-  powershell -Command "Invoke-WebRequest -Uri !PYTHON_URL! -OutFile python-installer.exe"
   
   if not exist "python-installer.exe" (
     echo Error downloading Python. Check your internet connection.
