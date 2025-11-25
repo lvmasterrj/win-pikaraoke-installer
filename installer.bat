@@ -164,6 +164,10 @@ echo.
 :: 4. Installing PikaKaraoke...
 echo Installing PikaKaraoke via pip...
 
+if not defined PYTHON_PATH (
+  set "PYTHON_PATH=python"
+)
+
 "%PYTHON_PATH%" -m pip install --upgrade pip >nul 2>&1
 if !errorlevel! neq 0 (
   echo Warning: pip upgrade had an issue but continuing...
