@@ -1,6 +1,7 @@
 @echo off
 setlocal enabledelayedexpansion
 title PiKaraoke Installer
+:: Created by lvmasterrj - https://github.com/lvmasterrj
 
 echo ==============================================
 echo  PiKaraoke Installer for Windows
@@ -127,8 +128,6 @@ echo.
 
 :: 3. Checking Google Chrome...
 echo Checking Google Chrome...
-echo.
-rem Verifica se o Chrome existe em algum dos diretórios comuns
 set "chromePath="
 if exist "%ProgramFiles%\Google\Chrome\Application\chrome.exe" set "chromePath=%ProgramFiles%\Google\Chrome\Application\chrome.exe"
 if exist "%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe" set "chromePath=%ProgramFiles(x86)%\Google\Chrome\Application\chrome.exe"
