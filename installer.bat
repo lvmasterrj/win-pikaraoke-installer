@@ -157,7 +157,27 @@ if defined chromePath (
 
 echo.
 
-:: 4. Installing PikaKaraoke...
+:: 4. Installing Deno...
+echo Checking Deno...
+
+where deno >nul 2>nul
+if !errorlevel! equ 0 (
+  echo Deno is already installed.
+  timeout /t 2 /nobreak >nul
+  ) else (
+  echo Deno not found. Installing Deno...
+  powershell -Command "iwr https://deno.land/install.ps1 -useb | iex"
+  
+  if !errorlevel! equ 0 (
+    echo Deno installed successfully.
+    timeout /t 2
+    ) else (
+    echo Warning: An error occurred while installing Deno. Continuing...
+    timeout /t 2
+  )
+)
+
+:: 5. Installing PikaKaraoke...
 echo Installing PikaKaraoke via pip...
 
 if not defined PYTHON_PATH (
@@ -187,7 +207,7 @@ echo - Enjoy!
 echo ===============================================
 echo.
 
-:: 5. Creating shortcut
+:: 6. Creating shortcut
 set /p createShortcut="Do you want to create a shortcut for PiKaraoke on desktop? (Y/N): "
 if /I "!createShortcut!"=="Y" (
   echo Checking for PikaKaraoke icon...
