@@ -10,5 +10,7 @@ The file verifies and installs:
 - ffmpeg
 - Chrome
 - Python
+- Deno
 - Pikaraoke
 
+And also creates a desktop shortcut.
