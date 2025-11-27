@@ -176,6 +176,7 @@ if !errorlevel! equ 0 (
     timeout /t 2
   )
 )
+echo.
 
 :: 5. Installing PikaKaraoke...
 echo Installing PikaKaraoke via pip...
@@ -192,6 +193,14 @@ if !errorlevel! neq 0 (
 "%PYTHON_PATH%" -m pip install pikaraoke
 if !errorlevel! equ 0 (
   echo PikaKaraoke installed successfully.
+  echo Installing yt-dlp-ejs python package...
+  
+  "%PYTHON_PATH%" -m pip install -U "yt-dlp[default]"
+  if !errorlevel! equ 0 (
+    echo yt-dlp-ejs installed successfully.
+    ) else (
+    echo Warning: An error occurred while installing yt-dlp-ejs. Continuing...
+  )
   ) else (
   echo Warning: An error occurred while installing PikaKaraoke. Continuing...
   echo PikaKaraoke exit code: !errorlevel!
